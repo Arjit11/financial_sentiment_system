@@ -1,0 +1,26 @@
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Ignore model files
+*.pth
+
+# Ignore outputs folder
+outputs/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Application specific
+.streamlit/
+*.png
