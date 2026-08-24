@@ -41,15 +41,15 @@ def get_investment_suggestion(sentiment_label, risk_score):
     Investment Decision Engine.
     
     Decision Logic:
-      ┌─────────────┬──────────────┬──────────────┐
-      │  Condition   │  Risk Score  │  Suggestion  │
-      ├─────────────┼──────────────┼──────────────┤
-      │  Positive   │  < 0.4       │  ✅ Invest    │
-      │  Neutral    │  < 0.6       │  ⏸  Hold     │
-      │  Negative   │  any         │  ❌ Avoid    │
-      │  any        │  > 0.7       │  ❌ Avoid    │
-      │  otherwise  │  otherwise   │  ⏸  Hold     │
-      └─────────────┴──────────────┴──────────────┘
+      ┌─────────────────────────────┬──────────────┬──────────────────────────────┐
+      │  Condition                  │  Risk Score  │  Suggestion                  │
+      ├─────────────────────────────┼──────────────┼──────────────────────────────┤
+      │  Positive                   │  < 0.40      │  ✅ Invest                    │
+      │  Positive (Buy on Dips)     │  0.40 – 0.50 │  ✅ Accumulate / Buy on Dips │
+      │  Neutral                    │  < 0.60      │  ⏸  Hold                     │
+      │  Negative OR High Risk      │  >= 0.65     │  ❌ Avoid Investment         │
+      │  otherwise                  │  otherwise   │  ⏸  Hold                     │
+      └─────────────────────────────┴──────────────┴──────────────────────────────┘
     
     Args:
         sentiment_label: str ("Positive", "Negative", "Neutral")
@@ -58,11 +58,13 @@ def get_investment_suggestion(sentiment_label, risk_score):
     Returns:
         str: Investment suggestion
     """
-    if sentiment_label == "Negative" or risk_score > 0.7:
+    if sentiment_label == "Negative" or risk_score >= 0.65:
         return "❌ Avoid Investment"
-    elif sentiment_label == "Positive" and risk_score < 0.4:
+    elif sentiment_label == "Positive" and risk_score < 0.40:
         return "✅ Invest"
-    elif sentiment_label == "Neutral" and risk_score < 0.6:
+    elif sentiment_label == "Positive" and risk_score <= 0.50:
+        return "✅ Accumulate / Buy on Dips"
+    elif sentiment_label == "Neutral" and risk_score < 0.60:
         return "⏸️  Hold"
     else:
         return "⏸️  Hold"

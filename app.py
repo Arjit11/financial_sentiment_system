@@ -571,6 +571,8 @@ POSITIVE_KEYWORDS = [
     "best", "innovative", "success", "recover", "recovery", "up",
     "positive", "boost", "boosting", "groundbreaking", "exceptional",
     "outstanding", "secures", "billion", "unprecedented", "historic",
+    "bounce", "rebound", "rebounds", "catalyst", "upside", "accumulate",
+    "jump", "jumps", "recovers",
 ]
 NEGATIVE_KEYWORDS = [
     "crash", "crashes", "plummet", "plummets", "loss", "losses", "fraud",
@@ -725,9 +727,10 @@ with st.sidebar:
         Decision Logic
     </div>
     <div class="sidebar-box" style="font-size: 0.8rem; color: var(--text-secondary); line-height: 2;">
-        <span class="c-green">●</span> <b>Invest</b> — Positive & Risk &lt; 0.4<br>
-        <span class="c-amber">●</span> <b>Hold</b> — Neutral & Risk &lt; 0.6<br>
-        <span class="c-red">●</span> <b>Avoid</b> — Negative OR Risk &gt; 0.7
+        <span class="c-green">●</span> <b>Invest</b> — Positive & Risk &lt; 0.40<br>
+        <span class="c-green">●</span> <b>Accumulate</b> — Positive & Risk &le; 0.50<br>
+        <span class="c-amber">●</span> <b>Hold</b> — Neutral & Risk &lt; 0.60<br>
+        <span class="c-red">●</span> <b>Avoid</b> — Negative OR Risk &ge; 0.65
     </div>
     """, unsafe_allow_html=True)
 
@@ -740,6 +743,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     examples = [
+        ("The Stock Of Apple is expected to fall this quarter, but in the next quarter the price is expected to bounce back, because of the latest iphone", "🟢"),
         ("Tesla reports record quarterly profits", "🟢"),
         ("Bank faces massive fraud investigation", "🔴"),
         ("Fed maintains current interest rates", "🟡"),
@@ -826,7 +830,9 @@ if analyze_clicked and headline.strip():
         st.session_state.history = st.session_state.history[:10]
 
     # Determine suggestion style
-    if "Invest" in suggestion and "Avoid" not in suggestion:
+    if "Accumulate" in suggestion:
+        banner_cls, sugg_text, sugg_icon = "banner-invest", "ACCUMULATE / BUY ON DIPS", "📈"
+    elif "Invest" in suggestion and "Avoid" not in suggestion:
         banner_cls, sugg_text, sugg_icon = "banner-invest", "INVEST", "✅"
     elif "Avoid" in suggestion:
         banner_cls, sugg_text, sugg_icon = "banner-avoid", "AVOID INVESTMENT", "🛑"
@@ -950,7 +956,9 @@ if st.session_state.history:
         r_val = item["risk"]
         r_color = "c-green" if r_val < 0.4 else ("c-amber" if r_val < 0.7 else "c-red")
 
-        if "Invest" in item["suggestion"] and "Avoid" not in item["suggestion"]:
+        if "Accumulate" in item["suggestion"]:
+            badge_cls, badge_txt = "badge-invest", "ACCUMULATE"
+        elif "Invest" in item["suggestion"] and "Avoid" not in item["suggestion"]:
             badge_cls, badge_txt = "badge-invest", "INVEST"
         elif "Avoid" in item["suggestion"]:
             badge_cls, badge_txt = "badge-avoid", "AVOID"

@@ -105,7 +105,7 @@ class FinancialSentimentRiskModel(nn.Module):
         # ── Pretrained BERT Encoder ──
         # Loads bert-base-uncased with 12 transformer layers,
         # 768 hidden size, and 110M parameters
-        self.bert = BertModel.from_pretrained(model_name)
+        self.bert = BertModel.from_pretrained(model_name, attn_implementation="eager")
         
         # ── Custom Task-Specific Heads ──
         self.sentiment_head = SentimentHead()
@@ -147,7 +147,7 @@ class FinancialSentimentRiskModel(nn.Module):
         
         return sentiment_logits, risk_score
     
-    def freeze_bert_layers(self, num_layers_to_freeze=10):
+    def freeze_bert_layers(self, num_layers_to_freeze=6):
         """
         Freeze early BERT layers to prevent overfitting on small datasets.
         Only fine-tunes the last few transformer layers + custom heads.

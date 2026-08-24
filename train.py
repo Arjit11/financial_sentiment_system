@@ -14,11 +14,14 @@ Contains:
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
+from transformers import get_linear_schedule_with_warmup
 import time
+import copy
 
 from config import (
     DEVICE, EPOCHS, LEARNING_RATE_BERT, LEARNING_RATE_HEAD,
-    WEIGHT_DECAY, SENTIMENT_LOSS_WEIGHT, RISK_LOSS_WEIGHT
+    WEIGHT_DECAY, SENTIMENT_LOSS_WEIGHT, RISK_LOSS_WEIGHT,
+    WARMUP_RATIO
 )
 
 
@@ -70,8 +73,15 @@ def train_model(model, train_loader, val_loader, epochs=EPOCHS):
     sentiment_criterion = nn.CrossEntropyLoss()  # For classification
     risk_criterion = nn.MSELoss()                 # For regression
     
-    # ── Optimizer ──
+    # ── Optimizer & Scheduler ──
     optimizer = get_optimizer(model)
+    total_steps = len(train_loader) * epochs
+    warmup_steps = int(total_steps * WARMUP_RATIO)
+    scheduler = get_linear_schedule_with_warmup(
+        optimizer,
+        num_warmup_steps=warmup_steps,
+        num_training_steps=total_steps
+    )
     
     # ── Training History ──
     history = {
@@ -88,11 +98,13 @@ def train_model(model, train_loader, val_loader, epochs=EPOCHS):
     print(f"  Device:          {DEVICE}")
     print(f"  Train batches:   {len(train_loader)}")
     print(f"  Val batches:     {len(val_loader)}")
+    print(f"  Total steps:     {total_steps} (warmup: {warmup_steps})")
     print(f"  Sentiment weight: {SENTIMENT_LOSS_WEIGHT}")
     print(f"  Risk weight:      {RISK_LOSS_WEIGHT}")
     print("=" * 60)
     
     best_val_loss = float("inf")
+    best_model_state = None
     
     for epoch in range(epochs):
         epoch_start = time.time()
@@ -132,6 +144,7 @@ def train_model(model, train_loader, val_loader, epochs=EPOCHS):
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             
             optimizer.step()
+            scheduler.step()
             
             # Track metrics
             total_train_loss += total_loss.item()
@@ -201,6 +214,7 @@ def train_model(model, train_loader, val_loader, epochs=EPOCHS):
         # Track best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
+            best_model_state = copy.deepcopy(model.state_dict())
             best_marker = " ★ Best"
         else:
             best_marker = ""
@@ -215,6 +229,11 @@ def train_model(model, train_loader, val_loader, epochs=EPOCHS):
         print(f"  └─ Val   Loss: {avg_val_loss:.4f}  "
               f"(Sent: {avg_val_sent:.4f}, Risk: {avg_val_risk:.4f})  "
               f"Acc: {val_acc:.3f}")
+    
+    # Restore best weights
+    if best_model_state is not None:
+        model.load_state_dict(best_model_state)
+        print("\n[Train] Restored best model weights from checkpoint.")
     
     print("\n" + "=" * 60)
     print("  TRAINING COMPLETE")

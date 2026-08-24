@@ -50,10 +50,11 @@ RISK_LEVELS = {
 # ──────────────────────────────────────────────
 # Training Hyperparameters
 # ──────────────────────────────────────────────
-EPOCHS = 10                             # Number of training epochs
+EPOCHS = 15                             # Number of training epochs
 BATCH_SIZE = 8                          # Batch size
 LEARNING_RATE_BERT = 2e-5               # Learning rate for BERT layers
-LEARNING_RATE_HEAD = 1e-3               # Learning rate for custom heads
+LEARNING_RATE_HEAD = 5e-4               # Learning rate for custom heads
+WARMUP_RATIO = 0.1                      # Warmup ratio for learning rate scheduler
 WEIGHT_DECAY = 0.01                     # AdamW weight decay
 SENTIMENT_LOSS_WEIGHT = 1.0             # Weight for sentiment loss
 RISK_LOSS_WEIGHT = 0.5                  # Weight for risk loss

@@ -74,9 +74,13 @@ def load_model(path=MODEL_SAVE_PATH):
 # Test Headlines for Demonstration
 # ══════════════════════════════════════════════
 DEMO_HEADLINES = [
+    # Contrastive / User test case
+    "The Stock Of Apple is expected to fall this quarter, but in the next quarter the price is expected to bounce back, because of the latest iphone",
+    
     # Positive
     "Apple announces groundbreaking AI chip boosting stock price",
     "Amazon quarterly revenue exceeds all analyst expectations",
+    "Tesla margins contracted this quarter, but record vehicle deliveries boost long term outlook",
     
     # Negative
     "Major bank collapses amid liquidity crisis and fraud allegations",
@@ -119,8 +123,8 @@ def run_full_pipeline():
     print("━" * 60)
     model = FinancialSentimentRiskModel()
     
-    # Freeze early BERT layers to prevent overfitting on small dataset
-    model.freeze_bert_layers(num_layers_to_freeze=10)
+    # Freeze lower BERT layers while allowing top 6 layers to adapt
+    model.freeze_bert_layers(num_layers_to_freeze=6)
     
     # ── Step 3: Train ──
     print("\n" + "━" * 60)
