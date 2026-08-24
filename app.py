@@ -1366,39 +1366,22 @@ if analyze_clicked and headline.strip():
         for label, prob in probs.items():
             txt_cls, bar_cls = prob_map[label]
             w = f"{prob * 100:.1f}"
-            bars_html += f"""
-            <div class="prob-row">
-                <span class="prob-label {txt_cls}">{label}</span>
-                <div class="prob-track">
-                    <div class="prob-fill {bar_cls}" style="width:{w}%"></div>
-                </div>
-                <span class="prob-pct {txt_cls}">{prob:.1%}</span>
-            </div>"""
+            bars_html += f'<div class="prob-row"><span class="prob-label {txt_cls}">{label}</span><div class="prob-track"><div class="prob-fill {bar_cls}" style="width:{w}%"></div></div><span class="prob-pct {txt_cls}">{prob:.1%}</span></div>'
 
-        st.markdown(f"""
-        <div class="panel">
-            <div class="panel-title">📊 &nbsp;Sentiment Probability Distribution</div>
-            {bars_html}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="panel"><div class="panel-title">📊 &nbsp;Sentiment Probability Distribution</div>' + bars_html + '</div>', unsafe_allow_html=True)
 
     with col_right:
         needle = max(2, min(98, risk_score * 100))
-        st.markdown(f"""
-        <div class="panel">
-            <div class="panel-title">🎯 &nbsp;Risk Assessment Gauge</div>
-            <div class="gauge-zone-labels">
-                <span>Low</span><span>Moderate</span><span>High</span><span>Critical</span>
-            </div>
-            <div class="gauge-bar">
-                <div class="gauge-cursor" style="left:{needle:.1f}%"></div>
-            </div>
-            <div class="gauge-readout">
-                <div class="gauge-number {risk_color}">{risk_score:.4f}</div>
-                <div class="gauge-level-tag {risk_glt}">{risk_level} Risk</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        gauge_html = (
+            '<div class="panel">'
+            '<div class="panel-title">🎯 &nbsp;Risk Assessment Gauge</div>'
+            '<div class="gauge-zone-labels"><span>Low</span><span>Moderate</span><span>High</span><span>Critical</span></div>'
+            f'<div class="gauge-bar"><div class="gauge-cursor" style="left:{needle:.1f}%"></div></div>'
+            f'<div class="gauge-readout"><div class="gauge-number {risk_color}">{risk_score:.4f}</div>'
+            f'<div class="gauge-level-tag {risk_glt}">{risk_level} Risk</div></div>'
+            '</div>'
+        )
+        st.markdown(gauge_html, unsafe_allow_html=True)
 
     # ── AI Summary ──
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1445,27 +1428,29 @@ if st.session_state.history:
 
         hl = item["headline"]
         hl_disp = hl[:75] + "…" if len(hl) > 75 else hl
-        rows_html += f"""
-        <div class="history-row">
-            <div class="h-headline">{hl_disp}</div>
-            <div class="h-cell {s_color}">{item['sentiment']}</div>
-            <div class="h-cell {r_color}" style="font-family:'JetBrains Mono',monospace;">{r_val:.3f}</div>
-            <div style="text-align:center;"><span class="badge {b_cls}">{b_txt}</span></div>
-            <div class="h-time">{item['time']}</div>
-        </div>"""
+        rows_html += (
+            f'<div class="history-row">'
+            f'<div class="h-headline">{hl_disp}</div>'
+            f'<div class="h-cell {s_color}">{item["sentiment"]}</div>'
+            f'<div class="h-cell {r_color}" style="font-family:\'JetBrains Mono\',monospace;">{r_val:.3f}</div>'
+            f'<div style="text-align:center;"><span class="badge {b_cls}">{b_txt}</span></div>'
+            f'<div class="h-time">{item["time"]}</div>'
+            f'</div>'
+        )
 
-    st.markdown(f"""
-    <div class="history-shell">
-        <div class="history-header">
-            <span>Headline</span>
-            <span style="text-align:center">Sentiment</span>
-            <span style="text-align:center">Risk</span>
-            <span style="text-align:center">Action</span>
-            <span style="text-align:center">Time</span>
-        </div>
-        {rows_html}
-    </div>
-    """, unsafe_allow_html=True)
+    history_shell = (
+        '<div class="history-shell">'
+        '<div class="history-header">'
+        '<span>Headline</span>'
+        '<span style="text-align:center">Sentiment</span>'
+        '<span style="text-align:center">Risk</span>'
+        '<span style="text-align:center">Action</span>'
+        '<span style="text-align:center">Time</span>'
+        '</div>'
+        + rows_html +
+        '</div>'
+    )
+    st.markdown(history_shell, unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════
