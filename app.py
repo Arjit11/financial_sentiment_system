@@ -1211,22 +1211,17 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-with st.container():
-    st.markdown('<div class="input-shell">', unsafe_allow_html=True)
-    headline = st.text_input(
-        "headline",
-        value=st.session_state.get("headline_input", ""),
-        placeholder="e.g.  'Apple beats earnings expectations, raising full-year guidance'",
-        label_visibility="collapsed",
-    )
-    col_btn1, col_btn2, col_btn3 = st.columns([4, 1.2, 1])
-    with col_btn1:
-        analyze_clicked = st.button("🔍  Analyze with BERT AI", type="primary", use_container_width=True)
-    with col_btn2:
-        clear_clicked = st.button("🗑️  Clear All", use_container_width=True)
-    with col_btn3:
-        pass
-    st.markdown('</div>', unsafe_allow_html=True)
+headline = st.text_input(
+    "headline",
+    value=st.session_state.get("headline_input", ""),
+    placeholder="e.g.  'Apple beats earnings expectations, raising full-year guidance'",
+    label_visibility="collapsed",
+)
+col_btn1, col_btn2 = st.columns([4, 1.2])
+with col_btn1:
+    analyze_clicked = st.button("🔍  Analyze with BERT AI", type="primary", use_container_width=True)
+with col_btn2:
+    clear_clicked = st.button("🗑️  Clear All", use_container_width=True)
 
 if clear_clicked:
     st.session_state.headline_input = ""
